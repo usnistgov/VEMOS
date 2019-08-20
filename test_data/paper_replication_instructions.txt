@@ -1,0 +1,121 @@
+Install and run VEMOS according to the installation instructions.
+
+Figure 2: Loading the leaf data set
+- Click "Load Previous Session" (top right).
+- Select "Leaf Data" in the combo box and click "OK".
+
+
+Figure 3: Data Record Browser
+- Under "Interface to Open", check "Open Record Browser".
+- Click "Done". The Data Record Browser interface will open.
+- Click "Go to". Select "Quercus robur_8" in the combo box and press "OK".
+- In the "Matches" box, click on "Quercus robur_5" to enable the match buttons.
+
+
+Figure 4: Visual Metric Analyzer
+- Click on the "File" menu at top left.
+- Click "Open Visual Metric Analyzer". The Visual Metric Analyzer window will open.
+- Hold down Ctrl and click on the table entries highlighted in the figure to highlight them.
+
+
+To create the clusters for later coloring by grouping:
+- In the top menu, click "Clustering".
+- Change the number next to "Clusters" to 4.
+- Click "Done".
+- Close the window to return to the Visual Metric Analyzer window (from Figure 4).
+
+
+
+Figure 5: Heat Map
+- Under "Matrices to Use in Analyses", uncheck the "MSE" box.
+- In the top menu, click "Analyses".
+- Click "Heat Map".
+
+
+Figure 6: 3D Multidimensional Scaling
+- Click on the Visual Metric Analyzer window (from Figure 4).
+- In the top menu, click "Analyses".
+- Click "Multidimensional Scaling".
+- Click "View 3D MDS".
+- Click "Color by Grouping".
+- Select "1: Spectral Clustering" in the combo box.
+- Click "OK".
+- If desired, click on the plot and drag it to make its orientation match the orientation of the figure.
+- Hover over a point to see its ID.
+
+
+Figure 7: Hierarchical Clustering
+- Click on the Visual Metric Analyzer window (from Figure 4).
+- Under "Matrices to Use in Analyses", check the "MSE" box.
+- In the top menu, click "Clustering".
+- Change the combo box that says "Spectral" to say "Hierarchical".
+- Click "Done".
+- In the plot with the title "MSE", hover over the node in the figure to display its IDs.
+
+
+Figure 8: Spectral Clustering
+- Click "Clustering Preferences" (under the plots).
+- Change the combo box that says "Hierarchical" to say "Spectral".
+- Change the number next to "Clusters" to 5.
+- Change the number next to "Components" to 5.
+- Click "Done". The clustering window will open.
+- Hover over a point to see its ID.
+- Click and drag the mouse over an area of the point to make a rectangular selection. Release the mouse to view all records in that range. (Selector colors may vary by operating system).
+- Click "Lasso" (at right, under the plots).
+- Click and drag the mouse around an area of the plot to make a lasso selection. Release the mouse to view all records in that range.
+
+
+Figure 9: Record Comparison
+- Click on the Visual Metric Analyzer window (from Figure 4).
+- On the table, hold down Ctrl and click on the following (row, col) table entries:
+    (Betula pubescens_4, Alnus sp_2)
+    (Betula pubescens_5, Alnus sp_2)
+    (Betula pubescens_6, Alnus sp_2)
+    (Betula pubescens_7, Alnus sp_2)
+    (Betula pubescens_8, Alnus sp_2)
+    (Betula pubescens_7, Alnus sp_1)
+    (Betula pubescens_6, Alnus sp_3)
+    (Crataegus monogyna_1, Alnus sp_3)
+    (Crataegus monogyna_2, Alnus sp_3)
+- Right-click to open the record comparison windows.
+- On the window with images (leaves on pink backgrounds), click "Next".
+
+
+Figure 10: Receiver Operating Characteristic Curve
+- Click on the Visual Metric Analyzer window (from Figure 4).
+- In the top menu, click "Binary Classification Performance".
+- Click "ROC Curve".
+- Click "Show on Single Plot" (at left, under the plots).
+- Hover over the blue line. Double-click to pin the true and false positive rates at that threshold to the plot.
+
+
+Figure 11: Smooth Histogram
+- Click on the Visual Metric Analyzer window (from Figure 4).
+- Under "Matrices to Use in Analyses", uncheck the "MSE" box.
+- In the top menu, click "Binary Classification Performance".
+- Click "Smooth Histogram".
+- Click the full screen button (top right).
+- Click on the plot to pin the current score.
+
+
+Figure 12: Linear Ordering
+- Click on the Visual Metric Analyzer window (from Figure 4).
+- In the top menu, click "Binary Classification Performance".
+- Click "Linear Ordering".
+- Hover over a point on the plot to display its score and associated records' IDs.
+
+
+Figure 14: Example Naming Conventions
+- Click on the Visual Metric Analyzer window (from Figure 4).
+- In the top menu, click "File".
+- Click "Update loaded data".
+- Under "Load Data Record Files", select "Create from Directory". Data type naming conventions can now be set in the "Set Data Types" box.
+- Click "Cancel" to return to the Visual Metric Analyzer window.
+
+
+To close the GUI and maintain all conditions for these instructions:
+- Click on the Visual Metric Analyzer window (from Figure 4).
+- Click the X button.
+- Click on the Visual Record Browser window (from Figure 3).
+- Click the X button.
+- When prompted to save, click "No".
