@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
     
 setuptools.setup(
      name='VEMOS',  
-     version='1.1.1',
+     version='1.1.3',
      author="Eve Fleisig",
      author_email="efleisig@princeton.edu",
      description="Visual Explorer for Metrics of Similarity",
