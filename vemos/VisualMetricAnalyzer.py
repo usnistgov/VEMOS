@@ -1150,6 +1150,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
             vert_text = ("Known Matches: Quantity;Known Non-Matches: Quantity;"
                          "Known Matches: Percent;Known Non-Matches: Percent")
             stats_table.setVerticalHeaderLabels(vert_text.split(";"))
+            stats_table.verticalHeader().setDefaultSectionSize(29)
             
             font.setBold(False)
             font.setPointSize(9)
@@ -1166,6 +1167,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
         
         
         self.mv_info_widget.setLayout(info_layout)
+        self.mv_info_widget.setMaximumHeight(250)                               #new
         
         container_layout.addWidget(self.mv_canvas, 2)
         container_layout.addWidget(self.mpl_toolbar)
@@ -1248,7 +1250,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
         self.mv_plot_type = "histogram"
         width = min(self.screen_geometry.width(), 
                     600*len(self.selected_matrices))
-        self.mv_widget.setGeometry(40, 70, width, 750)
+        self.mv_widget.setGeometry(40, 70, width, 700)
         self.mv_hover()
         self.mv_widget.show()
         
@@ -1558,8 +1560,8 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                                   ls="--", color='black')
 
         width = min(self.screen_geometry.width(), 
-                    600*len(self.selected_matrices))
-        self.mv_widget.setGeometry(40, 70, width, 1000)
+                    550*len(self.selected_matrices))
+        self.mv_widget.setGeometry(40, 70, width, 700)
         self.mv_hover()
         self.mv_widget.show()
 
@@ -1895,7 +1897,6 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
 
         info_layout.addLayout(buttons_layout, widget_index+1, 1)
         self.info_widget.setLayout(info_layout)
-        
         
         container_layout.addWidget(self.cluster_canvas, 2)
         container_layout.addWidget(self.mpl_toolbar)
@@ -2341,11 +2342,12 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
             circle_xs = [coord[1] for coord in self.tree_coords[matrix_name]]
             circle_ys = [coord[2] for coord in self.tree_coords[matrix_name]]
             new_artist, = self.current_cluster_axes[m_index].plot(
-                circle_xs, circle_ys, 'ro', picker=5)
+                circle_xs, circle_ys, 'ro', markersize=4, picker=5)
             self.artists["cluster"].append(new_artist)
             
             blue_artist, = self.current_cluster_axes[m_index].plot(
-                blue_coords, np.zeros(len(blue_coords)), 'bo', picker=5)
+                blue_coords, np.zeros(len(blue_coords)), 'bo', markersize=4, 
+                picker=5)
             self.artists["cluster"].append(blue_artist)
 
         height = min(self.screen_geometry.height(), 
@@ -2717,7 +2719,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                         self.settings["Plots per page"][0]))
                     
                     w = min(self.screen_geometry.width(), 380*(dim))
-                    h = min(self.screen_geometry.height(), 360*(dim))
+                    h = min(self.screen_geometry.height()-100, 360*(dim))
                     
                     dpi = 150
                     fig_h = max(h/dpi, 
@@ -3404,12 +3406,15 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
         --------
         view_selected_records: Displays the selected records.
         """
-
+        
         if event.dblclick:
             new_records = [self.data_set.records[int(event.xdata)], 
                            self.data_set.records[int(event.ydata)]]
-            
-            if set(tuple(new_records)) != set(tuple(self.selected_records)):
+            is_2d = ((self.selected_records is not None) 
+                     and len(self.selected_records) > 0 
+                     and isinstance(self.selected_records[0], list))
+            if (not is_2d and 
+                set(tuple(new_records)) != set(tuple(self.selected_records))):
                self.selected_records = new_records
                self.view_selected_records()
             
