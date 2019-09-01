@@ -7,8 +7,6 @@
 6. [Authors and Acknowledgments](#authors)
 7. [License](#license)
 
-![Logo](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo")
-
 # VEMOS
 
 VEMOS (Visual Explorer for Metrics of Similarity) is a Python package that provides a graphical user interface for exploring and evaluating distance metrics.
@@ -24,8 +22,6 @@ VEMOS consists of two interconnected interfaces, the Visual Metric Analyzer and 
 
 <a name="vma"></a>
 ## Features: Visual Metric Analyzer
-
-![Visual Metric Analyzer](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Main screen of the Visual Metric Analyzer.")
 
 ### Visualizations of the whole data set
 
@@ -44,8 +40,6 @@ The central table displays the current distance matrix, where each entry is the 
 #### Heat Map
 `Analyses ? Heat Map`
 
-![Heat Map](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Heat Map")
-
 Displays the distance matrix as an image; the similarity/dissimilarity score of each pair of data records is a colored (x, y) point, with red being least similar and blue most similar. Provides a visual summary of the areas of similarity or dissimilarity in the data.
 
 ##### Interactive features:
@@ -54,8 +48,6 @@ Displays the distance matrix as an image; the similarity/dissimilarity score of 
 
 #### Multidimensional Scaling
 `Analyses ? MDS`
-
-![Multidimensional Scaling](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "3D Multidimensional Scaling")
 
 Since comparison metrics provide a measure of the similarity of data records, it often helps to view the records as points in space with the distance between them determined by their similarity. This makes it easier to identify clusters and outliers visually and note patterns in the spatial layout of the data. However, heterogeneous data sets often do not reside in a low-dimensional vector space. Instead, a distance matrix can be used to represent the data as a set of 2D or 3D points that have approximately the same distances between them using multi-dimensional scaling (MDS), which lets you examine the 2D or 3D spatial layout of the data records.
 
@@ -76,15 +68,11 @@ Use `Clustering Preferences` to perform clustering with your preferred settings.
 * Hover over a node to display all records in that cluster.
 * Clicking on a node to display all associated records in a new window.
 
-![Hierarchical Clustering](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Hierarchical Clustering")
-
 ##### Interactive features: Spectral clustering
 
 * Hover over a point to display its ID.
 * Double-click on a point or select an area on the plot to display the corresponding data records. The Lasso/Rectangle option toggles between selecting a rectangular or freeform area.
 * `View`: View all records in that cluster.
-
-![Spectral Clustering](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Spectral Clustering")
 
 ### Binary Classification Performance
 
@@ -175,8 +163,6 @@ Select a linear, polynomial, or radial basis function kernel for support vector 
 ## Features: Data Record Browser
 The Data Record Browser lets users examine individual data records more closely. Browse the data files and view the records’ matches and groups while also gaining an overview of a record’s similarity to other records under different metrics. You can also assign matches and groups for later use in the Visual Metric Analyzer.
 
-![Data Record Browser](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Data Record Browser")
-
 <a name="installation"></a>
 ## Installation
 
@@ -215,21 +201,11 @@ If loading from a file directory, the data may be organized using:
 
 (a) Named folders: The directory of files should contain subdirectories with the names of the data types.  Check the box `Read Data Types from Folders`.
 
-Example:
-
-![Named folders example](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Main screen of the Visual Metric Analyzer.")
-
 (b) File naming conventions: If the data types aren't in the folder names, then individual files should have different names/file extensions for each data type. Under `Set Data Types`, list the conventions for each data type.
-
-Example:
-
-![Named files example](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Main screen of the Visual Metric Analyzer.")
 
 #### Loading from a Description FIle
 If the files aren't stored in an organized way, they can be manually organized using a description file. A description file should be a text file in the format:
 ID; (group_1, group_2); (match1, match2,...); data_type_1: file_1; data_type_2: file_2; ...
-
-Example: *
 
 ### Loading Matrices
 Add matrices to the `Load Similarity/Dissimilarity Matrices` box.
