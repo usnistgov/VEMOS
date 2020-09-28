@@ -63,10 +63,10 @@ class DataRecordBrowser(qtw.QMainWindow):
     def __init__(self, data_set):
         
         super(DataRecordBrowser, self).__init__()
-        app = qtw.QApplication.instance()                  # For screenshots
-        f = qtgui.QFont()
-        f.setPointSize(10)
-        app.setFont(f)
+#        app = qtw.QApplication.instance()                  # For screenshots
+#        f = qtgui.QFont()
+#        f.setPointSize(10)
+#        app.setFont(f)
 
         self.data_set = data_set
         self.gb = guibackend.GUIBackend()
@@ -93,7 +93,7 @@ class DataRecordBrowser(qtw.QMainWindow):
             'Generate Matrix', self), "triggered", self.make_matrices))   
         
         # Sets up display        
-        self.setGeometry(40, 70, 1100, 900)
+        self.setGeometry(40, 70, 1100, 700)
         self.setWindowIcon(self.data_set.icon)
         self.create_main_frame()
         self.show_record()
@@ -195,7 +195,7 @@ class DataRecordBrowser(qtw.QMainWindow):
         self.files_box.setLayout(qtw.QVBoxLayout())
         self.files_box.layout().addWidget(files_scroll)
         
-        self.files_box.setMinimumHeight(100)
+        self.files_box.setMaximumHeight(80)
         self.files_layout = qtw.QVBoxLayout(files_scroll_container)
         
         # Adds group information
@@ -226,7 +226,7 @@ class DataRecordBrowser(qtw.QMainWindow):
         
         matches_box = qtw.QGroupBox("Matches", self.feature_widget)
         matches_box.setLayout(matches_layout)
-        #matches_box.setMinimumHeight(80)
+        matches_box.setMinimumHeight(80)
                                              
         # Adds box for text description, if necessary
         self.text_edits = []
@@ -277,12 +277,12 @@ class DataRecordBrowser(qtw.QMainWindow):
                 "Matrix", "Type", "Most Similar Record", "Score", 
                 "Least Similar Record", "Score"])                          
             
-            self.scores_table.verticalHeader().setDefaultSectionSize(33)
+            self.scores_table.verticalHeader().setDefaultSectionSize(27)
             
             scores_layout = qtw.QVBoxLayout()                       
             scores_layout.setAlignment(qtcore.Qt.AlignTop)
             scores_layout.addWidget(self.scores_table)
-            scores_layout.addSpacing(5)
+            scores_layout.addSpacing(2)
             self.scores_box.setLayout(scores_layout)
     
         # Disables score-related informations if scores were not loaded
@@ -297,7 +297,7 @@ class DataRecordBrowser(qtw.QMainWindow):
         label_grid_box.addWidget(self.scores_box, 1, 1, 3, 1)
         label_grid_box.setColumnStretch(1, 2)
         self.feature_widget.setLayout(label_grid_box)
-        self.feature_widget.setFixedHeight(400)
+        self.feature_widget.setFixedHeight(350)                                 # 400 when height was 800
                    
         vbox = qtw.QVBoxLayout()
         vbox.addWidget(self.canvas)
