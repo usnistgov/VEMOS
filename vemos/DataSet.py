@@ -5,9 +5,9 @@ Created on Tue Oct 17 16:59:17 2017
 @author: Eve Fleisig
 
 
-This class represents a set of data records, associated groupings, and 
+This class represents a set of data records, associated groupings, and
 dissimilarity matrices.
-    
+
 """
 
 import gc
@@ -28,12 +28,78 @@ import PyQt5.QtGui as qtgui
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtCore as qtcore
 
-import vemos.GUIBackend as guibackend
-from vemos.DataRecord import DataRecord
+import GUIBackend as guibackend
 
 from skimage.measure import compare_ssim, compare_mse, compare_nrmse
-from sklearn import svm 
-        
+from sklearn import svm
+
+
+class DataRecord:
+    """Represents one element of a data set for the PatternAnalyzer GUI.
+
+    Attributes
+    ----------
+    id : str
+        The ID of the record.
+    groups : list of str
+        Lists the groups to which the record belongs.
+    matches : list of str
+        Lists the IDs of the records that match this record.
+    files : OrderedDict() of {str : str}
+        Dict of file types and file names; e.g.:
+        {"Image": "record1_img.jpg","Segmentation": "record1_seg.png",...}
+
+    """
+
+    def __init__(self, new_id, groups, matches, files):
+
+        self.id = str(new_id)
+        self.groups = groups
+        self.matches = matches
+        self.files = OrderedDict(sorted(files.items()))
+
+
+    def print_data(self):
+        """Prints the record's ID, groups, matches, and files.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        """
+        print("\nID:", self.id, "\nGroups:", self.groups)
+        print("Matches:", self.matches, "\nFiles:", self.files, "\n")
+
+
+    def get_description_file_format(self):
+        """Returns the record's attributes in description file format.
+
+        Groups and matches are returned in the format (group1, group2,...)
+        All other elements are returned separated by semicolons.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        str
+            The record's attributes, in description file format.
+
+        """
+
+        formatted_groups = "(" + ", ".join(self.groups) + ")"
+        formatted_matches = "(" + ", ".join(self.matches) + ")"
+        elements = [self.id, formatted_groups, formatted_matches]
+        elements.extend([key + ": " + self.files[key] for key in self.files])
+        return '; '.join(elements) + '\n'
+
+####################################################################################
+
 class DataSet:
     """
     Represents a set of data records, associated groupings and dissimilarity matrices.
@@ -41,7 +107,7 @@ class DataSet:
     Parameters
     ----------
     None
-    
+
     Attributes
     ----------
     name : str
@@ -55,30 +121,30 @@ class DataSet:
     matrices : dict of dict
         Dict of each score matrix's name, contents, path, and type.
         Format: {name:{"matrix": matrix_of_scores,
-                       "path": matrix_path, 
+                       "path": matrix_path,
                        "type": "Similarity"/"Distance/dissimilarity"}...}
     records : list of DataRecord
         The list of records in the data set.
     groupings : dict of {str : dict of {str : list of str}}
         Dict of the groups in each grouping of the data set.
-        Format: {grouping: {groupname: [ID1, ID2,...], 
+        Format: {grouping: {groupname: [ID1, ID2,...],
                             groupname: [ID1, ID2,...]...}}
     data_types : OrderedDict of dict of str
-        Dict of each data type's name (e.g., "Original Images") type name 
+        Dict of each data type's name (e.g., "Original Images") type name
         (e.g., "Image"), file name formats, and file extensions.
-        Format: {name: {"type": type_name, 
-                        "format": type_format, 
+        Format: {name: {"type": type_name,
+                        "format": type_format,
                         "extension": type_ext}...}
     match_nonmatch_scores : dict of {str : dict of {str : list}}
         Dict of the match scores, nonmatch scores, all scores, and ground truth
         values for each (flattened) matrix.
-        "gt" stores 1 at index i if the record pair at index i is matched, 
+        "gt" stores 1 at index i if the record pair at index i is matched,
         and 0 otherwise.
         Format: {matrix_name: {"match": [ID1, ...]
                                "nonmatch": [ID2, ...]
                                "all": [ID1, ID2,...]
                                "gt": [1, 0, ...]}}
-    
+
     loading_widget : QWidget
         The widget that displays loadign options.
     icon : QIcon
@@ -94,7 +160,7 @@ class DataSet:
     gb : GUIBackend
         Instance of GUIBackend for display methods.
     """
-    
+
     def __init__(self):
         self.gb = guibackend.GUIBackend()
         
@@ -106,113 +172,113 @@ class DataSet:
         self.records = []
         self.groupings = {"Manual": {}}
         self.data_types = OrderedDict()
-        self.data_types["Image"] = {"type": "Image", "format": "*", 
-                                    "extension": ".jpg, .png, .tif"} 
-        self.data_types["Segmentation"] = {"type": "Segmentation", "format": 
-                                           "*_segmentation, *_mask, *_seg", 
+        self.data_types["Image"] = {"type": "Image", "format": "*",
+                                    "extension": ".jpg, .png, .tif"}
+        self.data_types["Segmentation"] = {"type": "Segmentation", "format":
+                                           "*_segmentation, *_mask, *_seg",
                                            "extension": ".jpg, .png, .tif"}
-        self.data_types["Curve"] =  {"type": "Curve", "format": "*", 
+        self.data_types["Curve"] =  {"type": "Curve", "format": "*",
                                      "extension": ".txt"}                    # Default data types; put all options up here and use to set defaults?
         self.match_nonmatch_scores = {}
-        
+
         self.interface_to_open = "Visual Metric Analyzer"
         self.has_files = True
         self.update = False
-        
+
         self.loading_widget = None
         self.icon = qtgui.QIcon(os.path.join(os.path.dirname(os.path.realpath(__file__)), "glass.ico"))
         self.fig_index = 0
         self.num_widgets_open = 0
-        
-    
+
+
     def create_data_loading_widget(self):
         """ Creates the widget for loading data set information.
-        
-        The loading widget lets the user select a directory, description file, 
-        file types, and/or a score matrix. The directory is stored in 
-        `directory_path`, similarity/dissimilarity score matrices are loaded 
+
+        The loading widget lets the user select a directory, description file,
+        file types, and/or a score matrix. The directory is stored in
+        `directory_path`, similarity/dissimilarity score matrices are loaded
         in `matrix_boxes`, and data types are loaded in `data_boxes`.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         int:
-            Return code; 0 indicates success and non-zero values indicate an 
+            Return code; 0 indicates success and non-zero values indicate an
             error.
-        
+
         See Also
         --------
         get_records_done(): Executes upon exiting the widget
-        
+
         """
-        
-        frame_width = 600  
-        
+
+        frame_width = 600
+
         if self.loading_widget:
-            self.loading_widget.accept() 
-            self.loading_widget.close() 
+            self.loading_widget.accept()
+            self.loading_widget.close()
 
         self.loading_widget = LoadingWidget()
         self.loading_widget.resize(frame_width, 700)
         self.loading_widget.setWindowTitle("VEMOS")
         self.loading_widget.setWindowIcon(self.icon)
         self.loading_widget.rejected.connect(self.exit_application)
-                                                                                
+
         # Adds title and labels
         font = qtgui.QFont()
         font.setPointSize(12)
-        font.setBold(True)    
-        
+        font.setBold(True)
+
         loading_layout = qtw.QGridLayout()
-        
+
         num_cols = 8
 
         loading_layout.addWidget(
             self.gb.make_widget(qtw.QLabel("Load Data"), font=font), 0, 0)
-        
+
         loading_layout.addWidget(
-            self.gb.make_widget(qtw.QPushButton(self.loading_widget), 
+            self.gb.make_widget(qtw.QPushButton(self.loading_widget),
             "clicked", self.load_from_pickle, " Load Previous Session "),
             0, num_cols-1)
-            
+
         loading_layout.setRowMinimumHeight(1, 0)
-                 
+
         font.setPointSize(10)
         loading_layout.addWidget(self.gb.make_widget(qtw.QLabel(
                                  " Set Data Types"), font=font), 7, 0, 1, 5)
         loading_layout.addWidget(self.gb.make_widget(qtw.QLabel(
             " Load Similarity/Dissimilarity Matrices"), font=font), 10, 0, 1, 5)
-        
+
         self.name_line = qtw.QLineEdit(self.name, self.loading_widget)
-        
+
         # Lets user choose directory of files
         self.directory_choice_button = self.gb.make_widget(
-            qtw.QPushButton(self.loading_widget), "clicked", 
+            qtw.QPushButton(self.loading_widget), "clicked",
             self.choose_directory, "Choose File Directory")
-        
+
         self.directory_label = self.gb.make_widget(qtw.QLineEdit(
             self.loading_widget), text=self.directory_path)
-        self.directory_label.setReadOnly(True)      
-        
-                
+        self.directory_label.setReadOnly(True)
+
+
         # Lets user select how data description information will be loaded
         description_box = qtw.QGroupBox("Load Data Record Files")
-            
+
         self.description_button_group = qtw.QButtonGroup()
         description_layout = qtw.QVBoxLayout()
-        
-        
+
+
         self.directory_description_button = qtw.QRadioButton(
             "Create from Directory", checked=True)
         self.file_description_button = self.gb.make_widget(qtw.QRadioButton(
             "Use Existing Data Description File"))
 
-        
+
         self.no_files_button = qtw.QRadioButton("No Data Record Files Available")
-        
+
         self.directory_description_button.clicked.connect(partial(
             self.loading_type_change, "directory"))
         self.file_description_button.clicked.connect(partial(
@@ -1193,9 +1259,11 @@ class DataSet:
                         cur_groups = []
                         cur_id = ""
                         folders = re.split(r'\\|/', end_path)[:-1]
-                        
-                        for level, folder in enumerate(folders):    
-                            
+
+                        for level, folder in enumerate(folders):
+
+                            if folder == "": continue
+
                             # Checks if data type/group/ID information in file path
                             if folder in self.data_types:                             # Might be substring of root
                                 cur_data_type = folder
@@ -1382,8 +1450,7 @@ class DataSet:
         See Also
         --------
         load_score_lists : Loads matrices in list format.
-        """ 
-              
+        """
         # Reads in score matrices
         self.matrices = {}
         if not self.no_scores_button.isChecked():
@@ -2135,9 +2202,9 @@ class DataSet:
         svcs_box=qtw.QGroupBox("SVC Type")
         
         svcs_layout=qtw.QVBoxLayout()
-        self.svcs = {"Linear": svm.SVC(kernel='linear'), 
-                     "RBF": svm.SVC(kernel='rbf', gamma=0.7), 
-                     "Polynomial": svm.SVC(kernel='poly', degree=3, 
+        self.svcs = {"Linear": svm.SVC(kernel='linear'),
+                     "Radial Basis Functions": svm.SVC(kernel='rbf', gamma=0.7),
+                     "Polynomial": svm.SVC(kernel='poly', degree=3,
                                            gamma='auto')}
         for item in self.svcs:
             svcs_layout.addWidget(self.gb.make_widget(
