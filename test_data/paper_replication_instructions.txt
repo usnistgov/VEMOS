@@ -1,8 +1,20 @@
-Install and run VEMOS according to the installation instructions.
+
+Read INSTALL.txt and install the prerequisites of VEMOS: Python 3, PyQt5, NumPy, SciPy, Matplotlib, scikit-image, scikit-learn.
+
+Open a terminal (or command prompt). Change directory (cd) into the installation directory of VEMOS. 
+
+Type and run the command "python VEMOS.py" at the terminal.
+
 
 Figure 2: Loading the leaf data set
-- Click "Load Previous Session" (top right).
-- Select "Leaf Data" in the combo box and click "OK".
+- Click on "Choose File Directory", and choose the root directory "Leaf_Data" of the Leaf Data set.
+- Write "Leaf_Data" in the textbox next to "Data Set Name:".
+- Under "Load Data Files", choose "Use Existing Data Description File".
+- Click on the button "Choose Description File", choose the file named "leaf_data_description_Mac_Linux.txt" or "leaf_data_description_Windows.txt" under "Leaf_Data" folder.
+- Under "Set Data Types", click on "Add Another Data Type", and change the "Type" of the new data type to "Description".
+- Under "Load Similarity/Dissimilarity Matrices", click on the button "Choose", open the file named "Shape Distance.txt" under "Leaf_Data/_generated_matrices". Type "Shape Distance" in the "Name" textbox.
+- Click on "Add Another Score Matrix". Click on the button "Choose", open the file named "MSE.txt" under "Leaf_Data/_generated_matrices". Type "MSE" in the "Name" textbox.
+- Click on "Add Another Score Matrix".
 
 
 Figure 3: Data Record Browser
@@ -13,7 +25,7 @@ Figure 3: Data Record Browser
 
 
 Figure 4: Visual Metric Analyzer
-- Click on the "File" menu at top left.
+- Click on the "File" menu at top left of the Data Record Browser.
 - Click "Open Visual Metric Analyzer". The Visual Metric Analyzer window will open.
 - Hold down Ctrl and click on the table entries highlighted in the figure to highlight them.
 
@@ -21,13 +33,14 @@ Figure 4: Visual Metric Analyzer
 To create the clusters for later coloring by grouping:
 - In the top menu, click "Clustering".
 - Change the number next to "Clusters" to 4.
+- The clustering algorithm that is selected is "Spectral".
 - Click "Done".
 - Close the window to return to the Visual Metric Analyzer window (from Figure 4).
 
 
 
 Figure 5: Heat Map
-- Under "Matrices to Use in Analyses", uncheck the "MSE" box.
+- Under "Matrices to Use in Analyses" on the Visual Metric Analyzer window, uncheck the "MSE" box.
 - In the top menu, click "Analyses".
 - Click "Heat Map".
 
@@ -51,10 +64,11 @@ Figure 7: Hierarchical Clustering
 - Change the combo box that says "Spectral" to say "Hierarchical".
 - Click "Done".
 - In the plot with the title "MSE", hover over the node in the figure to display its IDs.
+- DON'T close this plot figure.
 
 
 Figure 8: Spectral Clustering
-- Click "Clustering Preferences" (under the plots).
+- Click "Clustering Preferences" at the bottom of hierarchical clustering figure.
 - Change the combo box that says "Hierarchical" to say "Spectral".
 - Change the number next to "Clusters" to 5.
 - Change the number next to "Components" to 5.
@@ -95,7 +109,7 @@ Figure 11: Smooth Histogram
 - In the top menu, click "Binary Classification Performance".
 - Click "Smooth Histogram".
 - Click the full screen button (top right).
-- Click on the plot to pin the current score.
+- Double-click on the plot to pin the current score.
 
 
 Figure 12: Linear Ordering
@@ -105,7 +119,8 @@ Figure 12: Linear Ordering
 - Hover over a point on the plot to display its score and associated records' IDs.
 
 
-Figure 14: Example Naming Conventions
+Figure 13: Example Naming Conventions
+This figure illustrates how the directory tree can be structured to store the data files. This figure is not a snapshot from VEMOS. Data stored in this way can be loaded into VEMOS without using a data description file as follows:
 - Click on the Visual Metric Analyzer window (from Figure 4).
 - In the top menu, click "File".
 - Click "Update loaded data".
@@ -119,3 +134,5 @@ To close the GUI and maintain all conditions for these instructions:
 - Click on the Visual Record Browser window (from Figure 3).
 - Click the X button.
 - When prompted to save, click "No".
+
+
