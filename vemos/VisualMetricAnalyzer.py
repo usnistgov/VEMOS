@@ -769,7 +769,9 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
             plt.close(self.fig_2d)
             self.fig_2d = None
             gc.collect()
-            
+
+        self.mv_plot_type = "mds2d"
+
         # Creates the plot
         fsize = (8*len(self.selected_matrices), 8)
         self.fig_2d, self.current_2d_axes = plt.subplots(
@@ -903,7 +905,9 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
             plt.close(self.fig_3d)
             self.fig_3d = None
             gc.collect()
-        
+
+        self.mv_plot_type = "mds3d"
+
         # Creates the plot
         self.fig_3d = plt.figure(figsize=(8*len(self.selected_matrices), 8))
         self.fig_3d.suptitle("3D Multidimensional Scaling", fontsize=18)

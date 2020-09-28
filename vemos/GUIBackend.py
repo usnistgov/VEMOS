@@ -421,6 +421,8 @@ class GUIBackend(object):
             else:
                 I = I.astype(pic2.dtype)
 
+        if I.ndim == 2:  gray = True
+
         if gray:
             axis.imshow(I, interpolation="none", cmap='gray')
         else:
