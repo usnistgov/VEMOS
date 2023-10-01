@@ -19,8 +19,7 @@ from matplotlib.backends.backend_qt5agg import (
 from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar)
 
-import vemos.GUIBackend as guibackend
-import vemos.VisualMetricAnalyzer as vma
+from .GUIBackend import GUIBackend
 
 
 class DataRecordBrowser(qtw.QMainWindow):
@@ -58,13 +57,13 @@ class DataRecordBrowser(qtw.QMainWindow):
     def __init__(self, data_set):
 
         super(DataRecordBrowser, self).__init__()
-#        app = qtw.QApplication.instance()                  # For screenshots
-#        f = qtgui.QFont()
-#        f.setPointSize(10)
-#        app.setFont(f)
+        app = qtw.QApplication.instance()                  # For screenshots
+        f = qtgui.QFont()
+        f.setPointSize(10)
+        app.setFont(f)
 
         self.data_set = data_set
-        self.gb = guibackend.GUIBackend()
+        self.gb = GUIBackend()
 
         # Adds menu bar
         menu_bar = self.menuBar()
@@ -88,7 +87,7 @@ class DataRecordBrowser(qtw.QMainWindow):
             'Generate Matrix', self), "triggered", self.make_matrices))
 
         # Sets up display
-        self.setGeometry(40, 70, 1100, 700)
+        self.setGeometry(40, 70, 1100, 900)
         self.setWindowIcon(self.data_set.icon)
         self.create_main_frame()
         self.show_record()
@@ -190,7 +189,7 @@ class DataRecordBrowser(qtw.QMainWindow):
         self.files_box.setLayout(qtw.QVBoxLayout())
         self.files_box.layout().addWidget(files_scroll)
 
-        self.files_box.setMaximumHeight(80)
+        self.files_box.setMinimumHeight(100)
         self.files_layout = qtw.QVBoxLayout(files_scroll_container)
 
         # Adds group information
@@ -221,7 +220,7 @@ class DataRecordBrowser(qtw.QMainWindow):
 
         matches_box = qtw.QGroupBox("Matches", self.feature_widget)
         matches_box.setLayout(matches_layout)
-        matches_box.setMinimumHeight(80)
+        #matches_box.setMinimumHeight(80)
 
         # Adds box for text description, if necessary
         self.text_edits = []
@@ -272,12 +271,12 @@ class DataRecordBrowser(qtw.QMainWindow):
                 "Matrix", "Type", "Most Similar Record", "Score",
                 "Least Similar Record", "Score"])
 
-            self.scores_table.verticalHeader().setDefaultSectionSize(27)
+            self.scores_table.verticalHeader().setDefaultSectionSize(33)
 
             scores_layout = qtw.QVBoxLayout()
             scores_layout.setAlignment(qtcore.Qt.AlignTop)
             scores_layout.addWidget(self.scores_table)
-            scores_layout.addSpacing(2)
+            scores_layout.addSpacing(5)
             self.scores_box.setLayout(scores_layout)
 
         # Disables score-related informations if scores were not loaded
@@ -292,7 +291,7 @@ class DataRecordBrowser(qtw.QMainWindow):
         label_grid_box.addWidget(self.scores_box, 1, 1, 3, 1)
         label_grid_box.setColumnStretch(1, 2)
         self.feature_widget.setLayout(label_grid_box)
-        self.feature_widget.setFixedHeight(350)                                 # 400 when height was 800
+        self.feature_widget.setFixedHeight(400)
 
         vbox = qtw.QVBoxLayout()
         vbox.addWidget(self.canvas)
@@ -377,7 +376,7 @@ class DataRecordBrowser(qtw.QMainWindow):
                         self.text_edits[index-axis_index].setText(text)
                 except (IOError, OSError, UnicodeDecodeError,
                         SyntaxError) as e:
-                    self.gb.loading_error("text description", v2=True)
+                    self.gb.loading_error("text description", v2=True, details=str(e))
 
             # Displays non-text files on the figure
             else:
@@ -586,8 +585,9 @@ class DataRecordBrowser(qtw.QMainWindow):
                 "matrix to use the Visual Metric Analyzer."))
             self.update_data()
         else:
+            from .VisualMetricAnalyzer import VisualMetricAnalyzer
             self.data_set.update = True
-            vma.VisualMetricAnalyzer(self.data_set)
+            VisualMetricAnalyzer(self.data_set)
             self.data_set.update = False
 
     def update_data(self):
@@ -620,7 +620,8 @@ class DataRecordBrowser(qtw.QMainWindow):
                 self.data_set.num_widgets_open += 1
                 self.show()
             else:
-                vma.VisualMetricAnalyzer(self.data_set)
+                from .VisualMetricAnalyzer import VisualMetricAnalyzer
+                VisualMetricAnalyzer(self.data_set)
 
 
 ###############################################################################

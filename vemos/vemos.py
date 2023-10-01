@@ -8,20 +8,20 @@ __init__.py as per the installation instructions.
 
 import sys
 import PyQt5.QtWidgets as qtw
-import DataSet as DataSet
-import VisualMetricAnalyzer as VisualMetricAnalyzer
-import DataRecordBrowser as DataRecordBrowser
+from .DataSet import DataSet
+from .VisualMetricAnalyzer import VisualMetricAnalyzer
+from .DataRecordBrowser import DataRecordBrowser
 
 def run():
-    app = qtw.QApplication(sys.argv)
+    app = qtw.QApplication( sys.argv )
 
-    data_set = DataSet.DataSet()
+    data_set = DataSet()
     data_set.create_data_loading_widget()
 
     if data_set.interface_to_open == "Data Record Browser":
-        drb = DataRecordBrowser.DataRecordBrowser(data_set)
+        drb = DataRecordBrowser( data_set )
     else:
-        vma = VisualMetricAnalyzer.VisualMetricAnalyzer(data_set)
+        vma = VisualMetricAnalyzer( data_set )
 
     sys.exit(app.exec_())
 

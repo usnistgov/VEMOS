@@ -22,9 +22,9 @@ import PyQt5.QtGui as qtgui
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtCore as qtcore
 
-import GUIBackend as guibackend
+from .GUIBackend import GUIBackend
 
-from skimage.measure import compare_ssim, compare_mse, compare_nrmse
+from skimage import metrics
 from sklearn import svm
 
 
@@ -156,7 +156,7 @@ class DataSet:
     """
 
     def __init__(self):
-        self.gb = guibackend.GUIBackend()
+        self.gb = GUIBackend()
 
         self.name = ""
         self.directory_path = ""
@@ -166,11 +166,15 @@ class DataSet:
         self.records = []
         self.groupings = {"Manual": {}}
         self.data_types = OrderedDict()
-        self.data_types["Image"] = {"type": "Image", "format": "*",
+        self.data_types["Image"] = {"type": "Image",
+                                    "format": "*",
                                     "extension": ".jpg, .png, .tif"}
-        self.data_types["Segmentation"] = {"type": "Segmentation", "format":
-                                           "*_segmentation, *_mask, *_seg",
+        self.data_types["Segmentation"] = {"type": "Segmentation",
+                                           "format": "*_segmentation, *_mask, *_seg",
                                            "extension": ".jpg, .png, .tif"}
+        self.data_types["Description"] = {"type": "Description",
+                                          "format": "*_description",
+                                          "extension": ".txt"}
         self.data_types["Curve"] =  {"type": "Curve", "format": "*",
                                      "extension": ".txt"}                    # Default data types; put all options up here and use to set defaults?
         self.match_nonmatch_scores = {}
@@ -969,8 +973,8 @@ class DataSet:
             original_directory = qtw.QFileDialog.getExistingDirectory(
                 None, "Select Data File Directory")
             main_directory = self.fix_path(str(original_directory))
-        except IOError:
-            self.gb.loading_error("directory")
+        except IOError as e:
+            self.gb.loading_error("directory", details=str(e))
             return
 
         self.directory_path = main_directory
@@ -1008,8 +1012,8 @@ class DataSet:
                 description = self.fix_path(str(
                     qtw.QFileDialog.getOpenFileName(
                     caption="Open Data Description File")[0]))
-        except (IOError, ValueError):
-            self.gb.loading_error("data description file")
+        except (IOError, ValueError) as e:
+            self.gb.loading_error("data description file", details=str(e))
             return
 
         self.description_path = description
@@ -1050,8 +1054,8 @@ class DataSet:
 
             matrix = self.fix_path(str(fname[0]))
 
-        except (IOError, ValueError):
-            self.gb.loading_error("similarity/dissimilarity matrix")
+        except (IOError, ValueError) as e:
+            self.gb.loading_error("similarity/dissimilarity matrix", details=str(e))
             return
 
         matrix_name = matrix.split("\\")[-1].split(".")[0]
@@ -1089,8 +1093,8 @@ class DataSet:
 
             for line in reader:
                 row = [item.strip() for item in line]
-                if len(row) != len(self.data_types) + 3:
-                    raise IOError
+                #if len(row) != len(self.data_types) + 3:
+                #    raise IOError("Number of items in row exceeds number of data types + 3.")
 
                 # Gets lists of groups and matches and dictionary of file names
                 group_list = re.sub('[\(\)]', "", row[1]).split(",")
@@ -1106,7 +1110,7 @@ class DataSet:
                         data_type = data_type.strip()
 
                         if data_type not in self.data_types:
-                            raise IOError
+                            raise IOError("Data type in data description file is not one of available data types.")
                         if cur_path and not cur_path.isspace():
                             cur_files[data_type] = self.fix_path(cur_path)
 
@@ -1144,8 +1148,8 @@ class DataSet:
 
             return True
 
-        except (IOError, ValueError, csv.Error):
-            self.gb.loading_error("data description file")
+        except (IOError, ValueError, csv.Error) as e:
+            self.gb.loading_error("data description file", details=str(e))
             self.records = []
             self.groupings = {"Manual": {}}
             return False                                                        # change all of these to T/F
@@ -1328,8 +1332,8 @@ class DataSet:
                             self.add_new_record(cur_id, cur_groups, end_path,
                                                 cur_data_type)
 
-        except (IOError, ValueError):
-            self.gb.loading_error("directory")
+        except (IOError, ValueError) as e:
+            self.gb.loading_error("directory", details=str(e))
             self.groupings = {"Manual": {}}
             return False
 
@@ -1507,10 +1511,10 @@ class DataSet:
                                     new_matrix["matrix"] = self.symmetrize_matrix(new_matrix["matrix"], item)
 
 
-                        except (IOError, ValueError, SyntaxError):
+                        except (IOError, ValueError, SyntaxError) as err:
                             self.gb.loading_error(
                                 "similarity/dissimilarity matrix. The matrix "
-                                + new_matrix_name + " failed to load")
+                                + new_matrix_name + " failed to load", details=str(err))
                             return False
 
         return True
@@ -1622,8 +1626,8 @@ class DataSet:
                                             record1.matches.append(row[1])
                                             record2.matches.append(row[0])
 
-                        except (IOError, OSError, ValueError, IndexError):
-                            self.gb.loading_error("CSV file")
+                        except (IOError, OSError, ValueError, IndexError) as e:
+                            self.gb.loading_error("CSV file", details=str(e))
                             return False
 
         return True
@@ -1666,8 +1670,8 @@ class DataSet:
             self.records = pickle.load(pickle_file)
             self.groupings = pickle.load(pickle_file)
             self.data_types = pickle.load(pickle_file)
-        except IOError:
-            self.gb.loading_error("data set")
+        except IOError as e:
+            self.gb.loading_error("data set", details=str(e))
             return
 
         self.create_data_loading_widget()
@@ -1785,11 +1789,14 @@ class DataSet:
     def make_matrices(self, gen_dialog):
         """ Displays file type and metric choices for making distance matrices.
 
-        The available image comparison methods are MSE (mean squared error),
-        NRMSE (normalized root mean squared error), SSIM (structural similarity
-        index), Euclidean (Euclidean/Frobenius distance between pixel values),
-        and Hamming (Hamming distance between pixel values). MSE, NRMSE, and
-        SSIM use the scikit-learn implementation.
+        The available image comparison methods are:
+        MSE (mean squared error),
+        NRMSE (normalized root mean squared error),
+        SSIM (structural similarity index),
+        Mutual info (normalized mutual information),
+        Hausdorff (Hausdorff distance btw nonzero elements of images),
+        Euclidean (Euclidean/Frobenius distance between pixel values),
+        and Hamming (Hamming distance between pixel values).
 
         Parameters
         ----------
@@ -1837,8 +1844,13 @@ class DataSet:
         metrics_box=qtw.QGroupBox("Metrics")
 
         metrics_layout=qtw.QVBoxLayout()
-        self.metrics = {"MSE": compare_mse, "NRMSE": compare_nrmse,
-                     "SSIM": compare_ssim, "Euclidean": None, "Hamming": None}                                      # , "Euclidean": np.linalg.norm, "Hamming": "h"
+        self.metrics = {"MSE": metrics.mean_squared_error,
+                        "NRMSE": metrics.normalized_root_mse,
+                        "SSIM": metrics.structural_similarity,
+                        "Mutual info": metrics.normalized_mutual_information,
+                        "Hausdorff": metrics.hausdorff_distance,
+                        "Euclidean": None, "Hamming": None }
+                        #"Euclidean": np.linalg.norm, "Hamming": "h"
         for item in self.metrics:
             metrics_layout.addWidget(self.gb.make_widget(
                 qtw.QCheckBox(gen_widget), "stateChanged",
@@ -1997,8 +2009,8 @@ class DataSet:
                         cancel=True)
                 if reply == 1:
                     return
-        except IOError:
-            self.gb.loading_error("directory")
+        except IOError as e:
+            self.gb.loading_error("directory", details=str(e))
             return
 
         self.matrix_dir_edit.setText(matrix_directory)
@@ -2032,8 +2044,8 @@ class DataSet:
             main_path, new_dir = os.path.split(self.matrix_directory)
             try:
                 os.makedirs(self.matrix_directory, exist_ok=True)
-            except IOError:
-                self.gb.loading_error("matrix directory")
+            except IOError as e:
+                self.gb.loading_error("matrix directory", details=str(e))
                 return
 
         fname_index=0

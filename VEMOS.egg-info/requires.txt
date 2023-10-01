@@ -3,4 +3,4 @@ numpy>=1.15
 scipy>=1.2
 matplotlib>=1.4.3
 scikit-learn>=0.20
-scikit-image>=0.15
+scikit-image>=0.16

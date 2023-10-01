@@ -6,9 +6,9 @@ interface.
 
 import sys
 import PyQt5.QtWidgets as qtw
-import vemos.DataSet as DataSet
-import vemos.VisualMetricAnalyzer as VisualMetricAnalyzer
-import vemos.DataRecordBrowser as DataRecordBrowser
+from .DataSet import DataSet
+from .VisualMetricAnalyzer import VisualMetricAnalyzer
+from .DataRecordBrowser import DataRecordBrowser
 
 def run():
     """ Opens the loading screen and interfaces of VEMOS.
@@ -25,12 +25,12 @@ def run():
 
     app = qtw.QApplication(sys.argv)
 
-    data_set = DataSet.DataSet()
+    data_set = DataSet()
     data_set.create_data_loading_widget()
 
     if data_set.interface_to_open == "Data Record Browser":
-        drb = DataRecordBrowser.DataRecordBrowser(data_set)
+        drb = DataRecordBrowser( data_set )
     else:
-        vma = VisualMetricAnalyzer.VisualMetricAnalyzer(data_set)
+        vma = VisualMetricAnalyzer( data_set )
 
     sys.exit(app.exec_())

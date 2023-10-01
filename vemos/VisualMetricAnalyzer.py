@@ -4,6 +4,7 @@ dissimilarity scores for data records with different file types.
 """
 
 import gc
+import csv
 import numpy as np
 import matplotlib as mpl
 mpl.use('Qt5Agg')
@@ -28,14 +29,13 @@ from matplotlib.widgets import (LassoSelector, RectangleSelector, Button,
 from matplotlib.figure import Figure
 from mpl_toolkits.mplot3d import Axes3D
 from scipy import stats
-from sklearn.manifold.mds import MDS
+from sklearn.manifold import MDS
 from sklearn.cluster import KMeans, spectral_clustering, dbscan
 from sklearn.metrics import roc_curve, auc
 from sklearn.metrics.pairwise import pairwise_distances
 from scipy.cluster.hierarchy import dendrogram, linkage, to_tree
 
-import vemos.GUIBackend as guibackend
-import vemos.DataRecordBrowser as drb
+from .GUIBackend import GUIBackend
 
 class VisualMetricAnalyzer(qtw.QMainWindow):
     """The main GUI for examining a data set's similarity/dissimilarity scores.
@@ -105,7 +105,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
         super(VisualMetricAnalyzer, self).__init__()
         plt.ion()
         self.data_set = data_set
-        self.gb = guibackend.GUIBackend()
+        self.gb = GUIBackend()
 
         # Tracks information that should stay the same even after update_data
         self.show_table = True
@@ -182,11 +182,11 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
         # Match Visualizations: ROC curve, histograms, linear ordering, stats
         self.match_menu = menu_bar.addMenu("Binary Classification Performance")
 
-        match_actions = {"ROC Curve":
-                         self.show_roc_curve, "Linear Ordering":
-                         self.linear_ordering, "Histogram":
-                         self.histogram, "Smooth Histogram":
-                         self.smooth_histogram, "Statistics": self.show_stats}
+        match_actions = {"ROC Curve": self.show_roc_curve,
+                         "Linear Ordering": self.linear_ordering,
+                         "Histogram": self.histogram,
+                         "Smooth Histogram": self.smooth_histogram,
+                         "Statistics": self.show_stats}
 
         for action in match_actions:
             self.match_menu.addAction(self.gb.make_widget(qtw.QAction(
@@ -559,7 +559,8 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                 self.data_set.num_widgets_open += 1
                 self.show()
             else:
-                drb.DataRecordBrowser(self.data_set)
+                from .DataRecordBrowser import DataRecordBrowser
+                DataRecordBrowser( self.data_set )
 
 
     def open_vrb(self):
@@ -582,8 +583,9 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                 "files to use the Data Record Browser."))
             self.update_data()
         else:
+            from .DataRecordBrowser import DataRecordBrowser
             self.data_set.update = True
-            drb.DataRecordBrowser(self.data_set)
+            DataRecordBrowser( self.data_set )
             self.data_set.update = False
 
 ###############################################################################
@@ -848,9 +850,10 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                 for pt_index in range(len(x)):
 
                     cur_id = self.data_set.records[pt_index].id
-                    note = self.current_2d_axes[matrix_index].annotate(cur_id,
-                        xy=(x[pt_index], y[pt_index]), arrowprops=dict(
-                        arrowstyle='->'), bbox=dict(boxstyle="round", fc="w"))
+                    note = self.current_2d_axes[matrix_index].annotate(
+                        cur_id, xy=(x[pt_index], y[pt_index]),
+                        arrowprops=dict(arrowstyle='->'),
+                        bbox=dict(boxstyle="round", fc="w"))
                     note.set_visible(False)
                     self.annotations["2d"][matrix_index].append(note)
 
@@ -2264,11 +2267,11 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
             self.current_cluster_axes[m_index].set_ylabel(
                 self.data_set.matrices[matrix_name]["type"])
 
-            args = self.get_cluster_args(dendrogram, self.hier_prefs,
+            args,kwargs = self.get_cluster_args(dendrogram, self.hier_prefs,
                                          [linkage_matrix],
                                          self.current_cluster_axes[m_index])
 
-            ddata=dendrogram(*args)
+            ddata = dendrogram( *args, **kwargs )
 
             self.roots[matrix_name] = to_tree(linkage_matrix)
             self.tree_coords[matrix_name] = [] # stores x, y, node
@@ -2432,11 +2435,11 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
 
             similarity_matrix = score_matrix.max() - score_matrix
 
-            args = self.get_cluster_args(
+            args,kwargs = self.get_cluster_args(
                 spectral_clustering, self.spectral_prefs, [similarity_matrix],
                 self.current_cluster_axes[m_index])
 
-            self.labels[matrix_name] = spectral_clustering(*args)
+            self.labels[matrix_name] = spectral_clustering( *args, **kwargs )
 
             # Stores clusters
             self.clusters[matrix_name] = {}
@@ -2502,7 +2505,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
             The dict of preferences (e.g., `spectral_prefs`) for this
             clustering method.
         initial : object
-            The first parameter of `method`.
+            The first parameter of `method`, passed in a list.
         axis : matplotlib.axes.Axes, optional
             The axis on which to plot the clustering, if needed.
 
@@ -2518,13 +2521,19 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
 
         """
 
-        parameter_names = inspect.getargspec(method)[0]
-        parameter_defaults = inspect.getargspec(method)[3]
+        method_parameters = list( inspect.signature( method ).parameters.items() )
+        # parameter_names = inspect.getargspec(method)[0]
+        # parameter_defaults = inspect.getargspec(method)[3]
+        #parameter_names = list( nethod_parameters.keys() )
 
-        parameter_values = initial
-        for index, name in enumerate(parameter_names[len(initial):]):
+        # parameter_values = initial
+        additional_parameters = {}
+        for name, parameter in method_parameters[ len(initial): ]:
+        #for index, name in enumerate(parameter_names[len(initial):]):
 
-            to_add = parameter_defaults[index]
+            # parameter = method_parameters[name]
+            to_add = parameter.default
+            # to_add = parameter_defaults[index]
 
             if name in dictionary and dictionary[name][0] is not None:
                 to_add = dictionary[name][0]
@@ -2535,9 +2544,10 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
             if name == "ax":
                 to_add = axis
 
-            parameter_values.append(to_add)
+            additional_parameters[ name ] = to_add
+            # parameter_values.append(to_add)
 
-        return parameter_values
+        return initial, additional_parameters #parameter_values
 
 ###############################################################################
     def make_matrices(self):
@@ -3789,7 +3799,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                             axis.axhline(score_y, color='k', linestyle='--')
 
                             x_note = axis.annotate(
-                                s="FPR: " + str(format(score_x, '.3g')),
+                                "FPR: " + str(format(score_x, '.3g')),
                                 xy=(score_x, 0), xycoords='data',
                                 xytext=(score_x, -.07),
                                 arrowprops=dict(arrowstyle='->'),
@@ -3797,7 +3807,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                             x_note.draggable()
 
                             y_note = axis.annotate(
-                                s="TPR: " + str(format(score_y, '.3g')),
+                                "TPR: " + str(format(score_y, '.3g')),
                                 xy=(0, score_y), xycoords='data',
                                 xytext=(-.16, score_y - .05),
                                 arrowprops=dict(arrowstyle='->'),
@@ -3825,7 +3835,7 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                         text_height = (score+max_score/80, -.01)
 
                     score_note = axis.annotate(
-                        s=str(format(score, '.3g')), xy=(score, note_height),
+                        str(format(score, '.3g')), xy=(score, note_height),
                         xytext=text_height, arrowprops=dict(arrowstyle='->'),
                         bbox=bbox_style)
                     score_note.draggable()
@@ -4124,3 +4134,4 @@ class VisualMetricAnalyzer(qtw.QMainWindow):
                 self.canvas.blit(self.canvas.figure.bbox)
             else:
                 self.canvas.draw_idle()
+

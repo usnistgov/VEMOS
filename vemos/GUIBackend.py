@@ -129,7 +129,9 @@ class GUIBackend(object):
             widget.setText(text)
 
         if pos != None:
-            widget.move(*pos)
+            pos0 = int( pos[0] )
+            pos1 = int( pos[1] )
+            widget.move(pos0,pos1) # .move(*pos)
 
         if resizing != None:
             widget.resize(*resizing)
@@ -233,7 +235,7 @@ class GUIBackend(object):
                             "displayed without loading data files.")
 
 
-    def loading_error(self, to_load, v2=False):
+    def loading_error(self, to_load, v2=False, details=""):
         """Displays an error message if data could not be loaded.
 
         Parameters
@@ -251,14 +253,16 @@ class GUIBackend(object):
         --------
         general_msgbox: Displays a custom message box.
         """
+        if len(details) > 0:
+            details = "(error: " + details + ")"
 
         if v2:
             self.general_msgbox(
                 "Loading Failed", "The " + to_load + " was corrupt or "
-                "unavailable. Please try again.")
+                "unavailable. Please try again. " + details)
         else:
             self.general_msgbox(
-                "Loading Failed", "Please select a valid " + to_load + ".")
+                "Loading Failed", "Please select a valid " + to_load + ". " + details)
 
 
     def no_selection_error(self):
@@ -326,7 +330,7 @@ class GUIBackend(object):
             try:
                 I = mpl.image.imread(path1)
             except (IOError, SyntaxError) as e:
-                self.loading_error("image/segmentation file", v2=True)
+                self.loading_error("image/segmentation file", v2=True, details=str(e))
                 path1 = "Unavailable"
 
         if path1 == "Unavailable":
@@ -352,7 +356,7 @@ class GUIBackend(object):
                 try:
                     pic2 = mpl.image.imread(path2)
                 except (IOError, SyntaxError) as e:
-                    self.loading_error("image/segmentation file", v2=True)
+                    self.loading_error("image/segmentation file", v2=True, details=str(e))
                     path2 = "Unavailable"
 
             if path2 == "Unavailable":
@@ -477,7 +481,7 @@ class GUIBackend(object):
                 curve1[0] -= np.amin(curve1[0])
             except (IOError, OSError, UnicodeDecodeError, SyntaxError,
                     ValueError) as e:
-                self.loading_error("curve file", v2=True)
+                self.loading_error("curve file", v2=True, details=str(e))
                 path1 = "Unavailable"
 
         if path1 == "Unavailable":
@@ -517,7 +521,7 @@ class GUIBackend(object):
 
                 except (IOError, OSError, UnicodeDecodeError, SyntaxError,
                         ValueError) as e:
-                    self.loading_error("curve file", v2=True)
+                    self.loading_error("curve file", v2=True, details=e)
                     path2 = "Unavailable"
 
             if path2 == "Unavailable":
@@ -556,7 +560,7 @@ class GUIBackend(object):
                     text = text_file.read()
             except (IOError, OSError, UnicodeDecodeError,
                     SyntaxError) as e:
-                self.gb.loading_error("text description", v2=True)
+                self.gb.loading_error("text description", v2=True, details=e)
                 text = "File Unavailable"
 
         edit = qtw.QTextEdit(text)

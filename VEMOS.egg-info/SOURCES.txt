@@ -5,7 +5,6 @@ VEMOS.egg-info/SOURCES.txt
 VEMOS.egg-info/dependency_links.txt
 VEMOS.egg-info/requires.txt
 VEMOS.egg-info/top_level.txt
-vemos/DataRecord.py
 vemos/DataRecordBrowser.py
 vemos/DataSet.py
 vemos/GUIBackend.py
